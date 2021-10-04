@@ -90,7 +90,7 @@ module.exports = {
         };
         return data;
       });
-      return helperWrapper.response(res, 400, "Success create data", result);
+      return helperWrapper.response(res, 400, "Success create data", newResult);
     } catch (error) {
       return helperWrapper.response(
         res,

@@ -1,6 +1,8 @@
 const { request, response } = require("express");
 const movieModel = require("./movieModel");
 const helperWrapper = require("../../helpers/wrapper");
+const redis = require("../../config/redis");
+const deleteFile = require("../../helpers/uploads/delete");
 
 module.exports = {
   getAllMovie: async (request, response) => {
@@ -21,6 +23,12 @@ module.exports = {
       };
 
       const result = await movieModel.getAllMovie(search, limit, offset);
+
+      redis.setex(
+        `getMovie:${JSON.stringify(request.query)}`,
+        3600,
+        JSON.stringify({ result, pageInfo })
+      );
       // response.status(200).send(result);
       return helperWrapper.response(
         response,
@@ -43,6 +51,8 @@ module.exports = {
     try {
       const { id } = req.params;
       const result = await movieModel.getMovieById(id);
+      //nympen data di redis
+      redis.setex(`getMovie:${id}`, 3600, JSON.stringify(result));
       if (result.length < 1) {
         return helperWrapper.response(
           res,
@@ -58,6 +68,7 @@ module.exports = {
           result
         );
       }
+
       console.log(result);
       console.log("GET MOVIE BY ID");
     } catch (error) {
@@ -81,9 +92,10 @@ module.exports = {
         cast,
         synopsis,
         releaseDate,
+        image: req.file ? req.file.filename : null,
       };
       const result = await movieModel.postMovie(setData);
-      return helperWrapper.response(res, 400, "Success create data", result);
+      return helperWrapper.response(res, 200, "Success create data", result);
     } catch (error) {
       return helperWrapper.response(
         res,
@@ -147,6 +159,7 @@ module.exports = {
           null
         );
       }
+      deleteFile(`public/upload/movie/${checkId[0].image}`);
       const result = await movieModel.deleteMovie(id);
       return helperWrapper.response(res, 200, "Delete Sucess", result);
     } catch (error) {
