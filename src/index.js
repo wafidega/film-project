@@ -6,9 +6,10 @@ const helmet = require("helmet");
 const compression = require("compression");
 const routerNavigation = require("./routes"); // ./routes/index.js
 const bodyParser = require("body-parser");
+require("dotenv/config");
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT;
 
 app.use(morgan("dev"));
 app.use(cors());

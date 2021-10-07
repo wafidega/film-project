@@ -1,21 +1,6 @@
 const connection = require("../../config/mysql");
 
 module.exports = {
-  register: (data) =>
-    new Promise((resolve, reject) => {
-      connection.query("INSERT INTO user SET ?", data, (error, result) => {
-        if (!error) {
-          const newResult = {
-            id: result.insertId,
-            ...data,
-          };
-          delete newResult.password;
-          resolve(newResult);
-        } else {
-          reject(new Error(`SQL : ${error.sqlMessage}`));
-        }
-      });
-    }),
   getUserByEmail: (email) =>
     new Promise((resolve, reject) => {
       connection.query(
@@ -111,4 +96,18 @@ module.exports = {
         }
       });
     }),
+  dashboard: (movieId, location, premiere) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT MONTH(schedule.createdAt) AS month, SUM(totalPayment) AS total FROM booking JOIN schedule WHERE schedule.movieId = ? AND schedule.location = ? AND schedule.premiere = ? AND YEAR(booking.createdAt) = YEAR(NOW()) GROUP BY MONTH(booking.createdAt)",
+        [movieId, `%${location}%`, `%${premiere}%`],
+        (error, result) => {
+          if (!error) {
+            resolve(result);
+          } else {
+            reject(new Error(`SQL : ${error.sqlMessage}`));
+          }
+        }
+      );
+    }), //Pindahin ke booking
 };

@@ -1,5 +1,4 @@
 const multer = require("multer");
-const { getFileInfo } = require("prettier");
 const helperWrapper = require("../helpers/wrapper");
 
 const storage = multer.diskStorage({
@@ -11,7 +10,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage }).single("image");
+const maxSize = 1 * 1024 * 1024; // limit file adalah 1 mb
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error("Only file png, jpg, jpeg format allowed"));
+    }
+  },
+  limits: { fileSize: maxSize },
+}).single("image");
 
 const uploadFilter = (req, res, next) => {
   upload(req, res, function (err) {

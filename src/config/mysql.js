@@ -2,10 +2,16 @@ require("dotenv/config");
 const mysql = require("mysql2");
 
 const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  //For develop
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "film",
+  //for deploy to heroku
+  // host: "ec2-54-236-24-175.compute-1.amazonaws.com",
+  // user: "fw11dega",
+  // password: "LAvfhh",
+  // database: "fw11dega_dbfilm",
 });
 
 connection.connect((error) => {

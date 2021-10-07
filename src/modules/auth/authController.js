@@ -41,12 +41,11 @@ module.exports = {
     try {
       const { email, password } = req.body;
       const checkUser = await modelAuth.getUserByEmail(email);
-
+      const isMatch = await bcrypt.compare(password, checkUser[0].password);
       if (checkUser.length < 1) {
         return helperWrapper.response(res, 404, "Email not Registered");
       }
-
-      if (password !== checkUser[0].password) {
+      if (!isMatch) {
         return helperWrapper.response(res, 400, "Wrong Password");
       }
       // console.log(checkUser);
@@ -112,159 +111,6 @@ module.exports = {
         `Bad request (${error.message}`,
         null
       );
-    }
-  },
-  updatePassword: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await modelAuth.getUserByIdUser(id);
-      if (checkId.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `Data by Id ${id} Not FOund`,
-          null
-        );
-      }
-      const { password, confirm_password } = req.body;
-      const isMatch = await bcrypt.compareSync(password, checkId[0].password);
-      if (confirm_password !== password) {
-        console.log("password tidak sama");
-      }
-      if (checkId[0].password === isMatch) {
-        const passwordEnkrip = await bcrypt.hash(password, 10);
-        const setData = {
-          password: passwordEnkrip,
-          updateAt: new Date(Date.now()),
-        };
-        const result = await modelAuth.updatePassword(setData, id);
-        return helperWrapper.response(
-          res,
-          200,
-          "Success Update Password user",
-          result
-        );
-      }
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `Bad request (${error.message}`,
-        null
-      );
-    }
-  },
-  updateProfile: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await modelAuth.getUserByIdUser(id);
-      if (checkId.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `Data by Id ${id} Not FOund`,
-          null
-        );
-      }
-      const { first_name, last_name } = req.body;
-      const setData = {
-        first_name,
-        last_name,
-        updateAt: new Date(Date.now()),
-      };
-      const result = await modelAuth.updateProfile(setData, id);
-      return helperWrapper.response(
-        res,
-        200,
-        "Success Update Profile user",
-        result
-      );
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `Bad request (${error.message}`,
-        null
-      );
-    }
-  },
-  updateImage: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await modelAuth.getUserByIdUser(id);
-      if (checkId.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `Data by Id ${id} Not FOund`,
-          null
-        );
-      }
-      const { image } = req.body;
-      const setData = {
-        image: req.file ? req.file.filename : null,
-        updateAt: new Date(Date.now()),
-      };
-      const result = await modelAuth.updateImage(setData, id);
-      return helperWrapper.response(
-        res,
-        200,
-        "Success Update Image Profile user",
-        result
-      );
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `Bad request (${error.message}`,
-        null
-      );
-    }
-  },
-  deleteUser: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const checkId = await authModel.deleteUser(id);
-      if (checkId.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `Data by Id ${id} Not FOund`,
-          null
-        );
-      }
-      deleteFile(`public/upload/user/${checkId[0].image}`);
-      const result = await authModel.deleteUser(id);
-      return helperWrapper.response(res, 200, "Delete Sucess", result);
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `Bad request (${error.message}`,
-        null
-      );
-    }
-  },
-  dashboard: async (request, response) => {
-    try {
-      let { movieId, location, premiere } = request.query;
-      const result = await authModel.dashboard(movieId, location, premiere);
-
-      // redis.setex(
-      //   `dashboard:${JSON.stringify(request.query)}`,
-      //   3600,
-      //   JSON.stringify({ result, pageInfo })
-      // );
-      // response.status(200).send(result);
-      return helperWrapper.response(response, 200, "Success get data", result);
-    } catch (error) {
-      return helperWrapper.response(
-        response,
-        400,
-        `Bad Request (${error.message})`,
-        null
-      );
-      // response.status(400).send(error.message);
     }
   },
 };

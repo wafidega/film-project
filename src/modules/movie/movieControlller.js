@@ -7,7 +7,7 @@ const deleteFile = require("../../helpers/uploads/delete");
 module.exports = {
   getAllMovie: async (request, response) => {
     try {
-      let { search, page, limit } = request.query;
+      let { search, sort, order, page, limit } = request.query;
       //Mengubah data menjadi number karena datanya masih String
       page = Number(page);
       limit = Number(limit);
@@ -22,7 +22,13 @@ module.exports = {
         totalData,
       };
 
-      const result = await movieModel.getAllMovie(search, limit, offset);
+      const result = await movieModel.getAllMovie(
+        search,
+        sort,
+        order,
+        limit,
+        offset
+      );
 
       redis.setex(
         `getMovie:${JSON.stringify(request.query)}`,

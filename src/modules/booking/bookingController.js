@@ -136,4 +136,27 @@ module.exports = {
       );
     }
   },
+  dashboard: async (request, response) => {
+    try {
+      let { movieId, location, premiere } = request.query;
+      const result = await bookingModel.dashboard(movieId, location, premiere);
+      if (result.length < 1) {
+        return helperWrapper.response(response, 404, "Data not found", result);
+      }
+      // console.log(result);
+      return helperWrapper.response(
+        response,
+        200,
+        "Success get dashboard data",
+        result
+      );
+    } catch (error) {
+      return helperWrapper.response(
+        response,
+        400,
+        `Bad Request (${error.message})`,
+        null
+      );
+    }
+  },
 };
