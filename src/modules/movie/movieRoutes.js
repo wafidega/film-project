@@ -14,7 +14,7 @@ Router.get(
   middlewareRedis.clearMovieRedis,
   movieController.getAllMovie
 );
-Router.get("/", movieController.getAllMovie);
+
 Router.get(
   "/:id",
   middlewareAuth.authentication,

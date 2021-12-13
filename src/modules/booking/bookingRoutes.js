@@ -8,7 +8,7 @@ const middlewareRedis = require("../../middleware/redis");
 const middlewareUpload = require("../../middleware/uploadUser");
 
 //Booking
-Router.get("/:id", bookingController.getBookingById);
+Router.get("/booking-id/:id", bookingController.getBookingById);
 Router.get("/user-id/:id", bookingController.getBookingByUserId);
 Router.post("/", bookingController.postBooking);
 Router.delete("/:id", bookingController.deleteBooking);

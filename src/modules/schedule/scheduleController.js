@@ -140,7 +140,6 @@ module.exports = {
       );
     }
   },
-
   deleteSchedule: async (req, res) => {
     try {
       const { id } = req.params;

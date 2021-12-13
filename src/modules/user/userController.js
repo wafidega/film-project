@@ -12,6 +12,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const result = await modelUser.getUserByIdUser(id);
+      delete result[0].password;
       //nympen data di redis
       redis.setex(`getUser:${id}`, 3600, JSON.stringify(result));
       if (result.length < 1) {
@@ -50,15 +51,10 @@ module.exports = {
           null
         );
       }
-      const { old_password, password, confirm_password } = req.body;
-      //JIKA PASSWORD LAMA DENGAN PASSWORD BARU SAMA
+      const { password, confirm_password } = req.body;
 
-      if (old_password === password) {
-        return helperWrapper.response(res, 400, `Password Sama`, null);
-      }
-
-      //Jika password dengan confirm password TIDAK SAMA
-      if (password !== confirm_password) {
+      //Jika password dengan  confirm password TIDAK SAMA
+      if (password === confirm_password) {
         // Ganti menggunakan response
         const passwordEnkrip = await bcrypt.hash(password, 10);
         const setData = {
@@ -137,6 +133,9 @@ module.exports = {
         image: req.file ? req.file.filename : null,
         updateAt: new Date(Date.now()),
       };
+      if (checkId[0].image && req.file) {
+        deleteFile(`public/upload/user/${checkId[0].image}`);
+      }
       const result = await modelUser.updateImage(setData, id);
       return helperWrapper.response(
         res,

@@ -27,9 +27,15 @@ module.exports = {
       req.decodeToken = result;
       next();
     });
-    isAdmin: (req, res, next) => {
-      console.log(req.decadeToken);
-    };
+
     console.log("Authentication proses");
+  },
+  isAdmin: (req, res, next) => {
+    // console.log(req.decadeToken);
+    if (req.user.admin) {
+      next();
+    } else {
+      res.status(403).send("You are not admin");
+    }
   },
 };

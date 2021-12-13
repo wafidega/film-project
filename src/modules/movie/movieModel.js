@@ -5,7 +5,7 @@ module.exports = {
   getAllMovie: (search, sort, order, limit, offset) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM movie JOIN schedule ON movie.id=schedule.movieId WHERE name LIKE ? ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+        `SELECT * FROM movie WHERE name LIKE ? ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
         [`%${search}%`, limit, offset],
         (error, result) => {
           if (!error) {
