@@ -2,11 +2,11 @@ const { promise } = require("../../config/mysql");
 const connection = require("../../config/mysql");
 
 module.exports = {
-  getAllSchedule: (search, limit, offset) =>
+  getAllSchedule: (location, movieId, limit, offset) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT * FROM schedule JOIN movie ON movie.id=schedule.movieId WHERE location LIKE ? ORDER BY location ASC LIMIT ? OFFSET ?",
-        [`%${search}%`, limit, offset],
+        "SELECT schedule.id, schedule.premiere, schedule.price, schedule.location, schedule.dateStart, schedule.dateEnd, schedule.time, schedule.movieId, movie.name FROM schedule JOIN movie ON movie.id=schedule.movieId WHERE location LIKE ? AND movieId LIKE ? ORDER BY location ASC LIMIT ? OFFSET ?",
+        [`%${location}%`, `%${movieId}%`, limit, offset],
         (error, result) => {
           if (!error) {
             resolve(result);
@@ -20,7 +20,7 @@ module.exports = {
   getScheduleById: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT * FROM schedule WHERE id = ?",
+        "SELECT schedule.id, schedule.premiere, schedule.price, schedule.location, schedule.dateStart, schedule.dateEnd, schedule.time, schedule.movieId, movie.name FROM schedule JOIN movie ON movie.id=schedule.movieId WHERE schedule.id = ?",
         id,
         (error, result) => {
           if (!error) {
@@ -32,10 +32,11 @@ module.exports = {
       );
     }),
 
-  getCountSchedule: () =>
+  getCountSchedule: (search) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT COUNT(*) AS total FROM schedule",
+        "SELECT COUNT(*) AS total FROM schedule WHERE location LIKE ?",
+        [`%${search}%`],
         (error, result) => {
           if (!error) {
             resolve(result[0].total);

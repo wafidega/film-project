@@ -12,4 +12,5 @@ Router.get("/activation/:id", authController.verifEmail);
 Router.post("/login", authController.login);
 Router.post("/logout", authController.logout);
 Router.get("/user-byid/:id", authController.getUserByIdUser);
+Router.post("/refresh-token", authController.refreshToken);
 module.exports = Router;

@@ -2,6 +2,7 @@ const { promise } = require("../../config/mysql");
 const connection = require("../../config/mysql");
 
 module.exports = {
+  // get Data
   getAllMovie: (search, sort, order, limit, offset) =>
     new Promise((resolve, reject) => {
       connection.query(
@@ -16,7 +17,6 @@ module.exports = {
         }
       );
     }),
-
   getMovieById: (id) =>
     new Promise((resolve, reject) => {
       connection.query(
@@ -31,11 +31,26 @@ module.exports = {
         }
       );
     }),
-
-  getCountMovie: () =>
+  getMovieByMonth: (month) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT COUNT(*) AS total FROM movie",
+        "SELECT * FROM movie WHERE month(releaseDate)=?",
+        month,
+        (error, result) => {
+          if (!error) {
+            resolve(result);
+          } else {
+            reject(new Error(`SQL : ${error.sqlMessage}`));
+          }
+        }
+      );
+    }),
+
+  getCountMovie: (search) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT COUNT(*) AS total FROM movie WHERE name LIKE ?",
+        [`%${search}%`],
         (error, result) => {
           if (!error) {
             resolve(result[0].total);
@@ -45,7 +60,7 @@ module.exports = {
         }
       );
     }),
-
+  // Post
   postMovie: (data) =>
     new Promise((resolve, reject) => {
       connection.query("INSERT INTO movie SET ?", data, (error, result) => {
@@ -60,7 +75,7 @@ module.exports = {
         }
       });
     }),
-
+  // Update
   updateMovie: (data, id) =>
     new Promise((resolve, reject) => {
       connection.query(
@@ -79,6 +94,7 @@ module.exports = {
         }
       );
     }),
+  // Delete
   deleteMovie: (id) =>
     new Promise((resolve, reject) => {
       connection.query(

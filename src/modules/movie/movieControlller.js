@@ -5,6 +5,7 @@ const redis = require("../../config/redis");
 const deleteFile = require("../../helpers/uploads/delete");
 
 module.exports = {
+  // get Data
   getAllMovie: async (request, response) => {
     try {
       let { search, sort, order, page, limit } = request.query;
@@ -13,7 +14,7 @@ module.exports = {
       limit = Number(limit);
       // TAMBAHKAN PROSES PEMBERIAN NILAI DEFAULT VALUE
       const offset = page * limit - limit;
-      const totalData = await movieModel.getCountMovie();
+      const totalData = await movieModel.getCountMovie(search);
       const totalPage = Math.ceil(totalData / limit);
       const pageInfo = {
         page,
@@ -21,6 +22,10 @@ module.exports = {
         limit,
         totalData,
       };
+      if (request.query.sort === "") {
+        sort = "name";
+        console.log(true);
+      }
 
       const result = await movieModel.getAllMovie(
         search,
@@ -86,6 +91,37 @@ module.exports = {
       );
     }
   },
+  getMovieByMonth: async (req, res) => {
+    try {
+      const { month } = req.params;
+      const result = await movieModel.getMovieByMonth(month);
+      //nympen data di redis
+      // redis.setex(`getMovie:${month}`, 3600, JSON.stringify(result));
+      if (result.length < 1) {
+        return helperWrapper.response(
+          res,
+          404,
+          `Data by Id ${month} Not FOund`,
+          null
+        );
+      } else {
+        return helperWrapper.response(
+          res,
+          200,
+          "Sukses get data by Month",
+          result
+        );
+      }
+    } catch (error) {
+      return helperWrapper.response(
+        res,
+        400,
+        `Bad request (${error.message}`,
+        null
+      );
+    }
+  },
+  // post Data
   postMovie: async (req, res) => {
     try {
       const { name, genre, director, duration, cast, synopsis, releaseDate } =
@@ -111,6 +147,7 @@ module.exports = {
       );
     }
   },
+  // Update Data
   updateMovie: async (req, res) => {
     try {
       const { id } = req.params;
@@ -133,6 +170,7 @@ module.exports = {
         cast,
         synopsis,
         releaseDate,
+        image: req.file ? req.file.filename : null,
         updatedAt: new Date(Date.now()),
       };
 
@@ -155,7 +193,7 @@ module.exports = {
       );
     }
   },
-
+  // Delete
   deleteMovie: async (req, res) => {
     try {
       const { id } = req.params;

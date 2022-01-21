@@ -3,11 +3,37 @@ const express = require("express");
 const Router = express.Router();
 
 const scheduleController = require("./scheduleController");
+const middlewareAuth = require("../../middleware/auth");
+const middlewareUpload = require("../../middleware/uploadSchedule");
+const middlewareRedis = require("../../middleware/redis");
 
-Router.get("/", scheduleController.getAllSchedule);
-Router.get("/:id", scheduleController.getScheduleById);
-Router.post("/", scheduleController.postSchedule);
-Router.patch("/:id", scheduleController.updateSchedule);
-Router.delete("/:id", scheduleController.deleteSchedule);
+Router.get(
+  "/",
+  middlewareAuth.authentication,
+  middlewareRedis.getScheduleRedis,
+  scheduleController.getAllSchedule
+);
+Router.get(
+  "/:id",
+  middlewareAuth.authentication,
+  middlewareRedis.getScheduleByIdRedis,
+  scheduleController.getScheduleById
+);
+Router.post(
+  "/",
+  middlewareAuth.authentication,
+  scheduleController.postSchedule,
+  middlewareUpload
+);
+Router.patch(
+  "/:id",
+  middlewareAuth.authentication,
+  scheduleController.updateSchedule
+);
+Router.delete(
+  "/:id",
+  middlewareAuth.authentication,
+  scheduleController.deleteSchedule
+);
 
 module.exports = Router;

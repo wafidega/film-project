@@ -6,12 +6,12 @@ const movieController = require("./movieControlller");
 const middlewareAuth = require("../../middleware/auth");
 const middlewareRedis = require("../../middleware/redis");
 const middlewareUpload = require("../../middleware/uploadMovie");
+const { clearMovieRedis } = require("../../middleware/redis");
 
 Router.get(
   "/",
   middlewareAuth.authentication,
   middlewareRedis.getMovieRedis,
-  middlewareRedis.clearMovieRedis,
   movieController.getAllMovie
 );
 
@@ -21,6 +21,12 @@ Router.get(
   middlewareRedis.getMovieByIdRedis,
   movieController.getMovieById
 );
+Router.get(
+  "/month/:month",
+  middlewareAuth.authentication,
+  middlewareRedis.getMovieByIdRedis,
+  movieController.getMovieByMonth
+);
 Router.post(
   "/",
   middlewareAuth.authentication,
@@ -28,7 +34,12 @@ Router.post(
   middlewareUpload,
   movieController.postMovie
 );
-Router.patch("/:id", movieController.updateMovie);
+Router.patch(
+  "/:id",
+  middlewareRedis.clearMovieRedis,
+  middlewareUpload,
+  movieController.updateMovie
+);
 Router.delete(
   "/:id",
   middlewareAuth.authentication,

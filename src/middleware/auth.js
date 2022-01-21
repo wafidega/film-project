@@ -31,11 +31,12 @@ module.exports = {
     console.log("Authentication proses");
   },
   isAdmin: (req, res, next) => {
-    // console.log(req.decadeToken);
-    if (req.user.admin) {
-      next();
-    } else {
-      res.status(403).send("You are not admin");
+    const { authorization } = req.headers;
+    const decoded = jwtDecode(authorization.split(" ")[1]);
+    if (decoded.role === "admin") {
+      return next();
     }
+
+    return helperWrapper.response(res, 403, "Your not admin");
   },
 };

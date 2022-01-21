@@ -13,6 +13,7 @@ Router.get("/user-id/:id", bookingController.getBookingByUserId);
 Router.post("/", bookingController.postBooking);
 Router.delete("/:id", bookingController.deleteBooking);
 Router.get("/dashboard", bookingController.dashboard);
+Router.post("/midtrans-notification", bookingController.postMidtransNotif);
 
 //Booking Seats
 // Router.post("/bookseat/", bookingController.postBookingSeat);

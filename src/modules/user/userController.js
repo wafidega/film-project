@@ -52,7 +52,15 @@ module.exports = {
         );
       }
       const { password, confirm_password } = req.body;
-
+      // Jika Password kurang dari 8
+      if (password.length < 6 || confirm_password.length < 6) {
+        return helperWrapper.response(
+          res,
+          400,
+          `Password must more than 6 character`,
+          null
+        );
+      }
       //Jika password dengan  confirm password TIDAK SAMA
       if (password === confirm_password) {
         // Ganti menggunakan response

@@ -13,6 +13,14 @@ module.exports = {
   register: async (req, res) => {
     try {
       const { email, password, first_name, last_name } = req.body;
+      if (
+        email === "" ||
+        password === "" ||
+        first_name === "" ||
+        last_name == ""
+      ) {
+        return helperWrapper.response(res, 400, "fill all the form");
+      }
       const checkEmail = await modelAuth.getUserByEmail(email);
       //Pengecekan Email
       if (checkEmail.length > 0) {
@@ -83,6 +91,13 @@ module.exports = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
+      // Error handling jika email dan password kosong
+      if (email === "") {
+        return helperWrapper.response(res, 400, "fill email form");
+      }
+      if (password === "") {
+        return helperWrapper.response(res, 400, "fill password form");
+      }
       const checkUser = await modelAuth.getUserByEmail(email);
       console.log(checkUser);
       const isMatch = await bcrypt.compare(password, checkUser[0].password);
@@ -160,6 +175,51 @@ module.exports = {
         res,
         400,
         `Bad request (${error.message}`,
+        null
+      );
+    }
+  },
+  // refresh Token
+  refreshToken: async (req, res) => {
+    try {
+      const { refreshToken } = req.body;
+
+      redis.get(`refreshToken:${refreshToken}`, (error, result) => {
+        if (!error && result !== null) {
+          return helperWrapper.response(
+            res,
+            400,
+            `your refresh token cannot be used again`
+          );
+        }
+
+        jwt.verify(refreshToken, process.env.SECRETE_KEY, (error, result) => {
+          if (error) {
+            return helperWrapper.response(res, 403, error.message);
+          }
+
+          delete result.iat;
+          delete result.exp;
+          const token = jwt.sign(result, process.env.SECRETE_KEY, {
+            expiresIn: "2h",
+          });
+          const newRefreshToken = jwt.sign(result, process.env.SECRETE_KEY, {
+            expiresIn: "24h",
+          });
+
+          // redis.setex(`refreshToken:${refreshToken}`, 3600 * 24, refreshToken);
+          return helperWrapper.response(res, 200, `success refresh token`, {
+            id: result.id,
+            token,
+            refreshToken: newRefreshToken,
+          });
+        });
+      });
+    } catch (error) {
+      return helperWrapper.response(
+        res,
+        400,
+        `bad request ${error.message}`,
         null
       );
     }

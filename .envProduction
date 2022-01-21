@@ -1,0 +1,22 @@
+PORT = 3001
+#KEYDATABASE
+DB_HOST = ec2-54-236-24-175.compute-1.amazonaws.com
+DB_USER = fw11dega
+DB_PASSWORD = LAvfhh
+DB_DATABASE = fw11dega_dbfilm
+
+
+REDIS_HOST = redis-10368.c61.us-east-1-3.ec2.cloud.redislabs.com
+REDIS_PORT = 10368
+REDIS_PASSWORD = 8piQMOg2bTx0bc5YKU3QwAVqlyDtmwvt
+
+gmail_email = movieticz@gmail.com
+gmail_pass = movieforall21
+
+
+SECRETE_KEY = RAHASIA
+
+
+MT_PRODUCTION = false
+MT_SERVER_KEY = SB-Mid-server-vdfWZ0WCrHIma0nKZVhczZw4
+MT_CLIENT_KEY = SB-Mid-client-fJt62nnPnq_m39iP

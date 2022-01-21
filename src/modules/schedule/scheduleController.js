@@ -1,11 +1,12 @@
 const { request, response } = require("express");
 const scheduleModel = require("./scheduleModel");
 const helperWrapper = require("../../helpers/wrapper");
+const redis = require("../../config/redis");
 
 module.exports = {
   getAllSchedule: async (request, response) => {
     try {
-      let { search, page, limit } = request.query;
+      let { location, movieId, page, limit } = request.query;
       //Mengubah data menjadi number karena datanya masih String
       page = Number(page);
       limit = Number(limit);
@@ -20,13 +21,41 @@ module.exports = {
         totalData,
       };
 
-      const result = await scheduleModel.getAllSchedule(search, limit, offset);
+      const result = await scheduleModel.getAllSchedule(
+        location,
+        movieId,
+        limit,
+        offset
+      );
+      console.log(result);
+      redis.setex(
+        `getShcedule:${JSON.stringify(request.query)}`,
+        3600,
+        JSON.stringify({ result, pageInfo })
+      );
       // response.status(200).send(result);
+      if (result.length < 1) {
+        return helperWrapper.response(
+          response,
+          200,
+          `success get all data`,
+          [],
+          pageInfo
+        );
+      }
+      // Time jadi array
+      const newResult = result.map((item) => {
+        const data = {
+          ...item,
+          time: item.time.split(","),
+        };
+        return data;
+      });
       return helperWrapper.response(
         response,
         200,
-        "Success get data",
-        result,
+        `success get all data`,
+        newResult,
         pageInfo
       );
     } catch (error) {
@@ -43,6 +72,7 @@ module.exports = {
     try {
       const { id } = req.params;
       const result = await scheduleModel.getScheduleById(id);
+      redis.setex(`getSchedule:${id}`, 3600, JSON.stringify(result));
       if (result.length < 1) {
         return helperWrapper.response(
           res,
@@ -83,14 +113,14 @@ module.exports = {
         time,
       };
       const result = await scheduleModel.postSchedule(setData);
-      const newResult = result.map((item) => {
-        const data = {
-          ...item,
-          time: item.item.split(","),
-        };
-        return data;
-      });
-      return helperWrapper.response(res, 400, "Success create data", newResult);
+      // const newResult = result.map((item) => {
+      //   const data = {
+      //     ...item,
+      //     time: item.item.split(","),
+      //   };
+      //   return data;
+      // });
+      return helperWrapper.response(res, 200, "Success create data", result);
     } catch (error) {
       return helperWrapper.response(
         res,
