@@ -84,8 +84,8 @@ module.exports = {
     new Promise((resolve, reject) => {
       console.log(movieId);
       const query = connection.query(
-        "SELECT MONTH(booking.createdAt) AS month, SUM(booking.totalPayment) AS total FROM booking JOIN schedule ON booking.scheduleId = schedule.id WHERE booking.movieId = ? AND schedule.location LIKE ? AND schedule.premiere LIKE ? AND YEAR(booking.createdAt) = YEAR(NOW()) GROUP BY MONTH(booking.createdAt)",
-        [movieId, `%${location}%`, `%${premiere}%`],
+        "SELECT MONTH(booking.createdAt) AS month, SUM(booking.totalPayment) AS total FROM booking JOIN schedule ON booking.scheduleId = schedule.id WHERE booking.movieId = ? AND schedule.location LIKE ? AND schedule.premiere LIKE ? AND booking.statusPayment LIKE ? AND YEAR(booking.createdAt) = YEAR(NOW()) GROUP BY MONTH(booking.createdAt)",
+        [movieId, `%${location}%`, `%${premiere}%`, `%SUCCESS%`],
         (error, result) => {
           if (!error) {
             resolve(result);
